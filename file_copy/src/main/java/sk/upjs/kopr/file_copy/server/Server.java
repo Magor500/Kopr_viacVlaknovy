@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 
 public class Server {
 	public static final int SERVER_PORT = 5000;
-	public static final File FILE_TO_SHARE = new File("Place path to file here");
+	public static final File FILE_TO_SHARE = new File("D:\\Anime-sama\\How The Grinch Stole Christmas 2000 CZ Dabing.avi");
 	
 	public static void main(String[] args) throws IOException {
 		ExecutorService executor = Executors.newCachedThreadPool();

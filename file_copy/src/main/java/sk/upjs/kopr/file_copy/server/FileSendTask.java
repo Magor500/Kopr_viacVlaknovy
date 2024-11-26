@@ -63,7 +63,7 @@ public class FileSendTask implements Runnable {
 				if (socket != null && socket.isConnected()) socket.close();
 			}
 		} catch (Exception e) {
-			
+
 		}
 	}
 }

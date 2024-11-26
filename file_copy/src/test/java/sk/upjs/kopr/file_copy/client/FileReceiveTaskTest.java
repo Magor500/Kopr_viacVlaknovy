@@ -56,7 +56,7 @@ class FileReceiveTaskTest {
 		ExecutorService executorService = Executors.newSingleThreadExecutor();
 		try {
 			
-			FileReceiveTask task = new FileReceiveTask(file, fileInfo.size, 0, fileInfo.size, inetAddress, serverPort);
+			FileReceiveTask task = new FileReceiveTask(file, fileInfo.size, 0, fileInfo.size, inetAddress, serverPort,0);
 			Future<Void> future = executorService.submit(task);
 			try {
 				future.get();
