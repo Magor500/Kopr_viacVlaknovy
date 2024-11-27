@@ -48,9 +48,29 @@ public class FileReceiveTask implements Callable<Void>{
 			oos.flush();
 			long fileOffset = offset;
 			while(true) {	
+					
+				if(Thread.currentThread().isInterrupted()) {
+					oos.close();
+					ois.close();
+					break;
+				}
+				
 				byte[] bytes = ois.readNBytes(BUFFER_SIZE);
+				
+				if(Thread.currentThread().isInterrupted()) {
+					oos.close();
+					ois.close();
+					break;
+				}
+				
 				if (bytes.length > 0) {
 					myFileWriter.write(fileOffset, bytes, 0, bytes.length);
+				}
+				
+				if(Thread.currentThread().isInterrupted()) {
+					oos.close();
+					ois.close();
+					break;
 				}
 					
 				if (bytes.length < BUFFER_SIZE) {
@@ -76,6 +96,13 @@ public class FileReceiveTask implements Callable<Void>{
 					break;
 				}
 				fileOffset += bytes.length;
+				
+				if(Thread.currentThread().isInterrupted()) {
+					oos.close();
+					ois.close();
+					break;
+				}
+				
 				if ((fileOffset / BUFFER_SIZE) % 1000 == 0) {
 					System.out.println(fileOffset);
 					
@@ -94,6 +121,14 @@ public class FileReceiveTask implements Callable<Void>{
 					}
 					
 				}
+				
+				if(Thread.currentThread().isInterrupted()) {
+					oos.close();
+					ois.close();
+					break;
+				}
+				
+				
 			}
 		}
 		

@@ -16,13 +16,25 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import sk.upjs.kopr.file_copy.FileInfo;
 import sk.upjs.kopr.file_copy.FileRequest;
 
-public class Client {
-	public static final int NUMBER_OF_WORKERS = Runtime.getRuntime().availableProcessors();
+public class Client extends Service<Void>{
+	public static int NUMBER_OF_WORKERS;
 	
-	public static void main(String [] args) {
+	public static void setNUMBER_OF_WORKERS(int nUMBER_OF_WORKERS) {
+		NUMBER_OF_WORKERS = nUMBER_OF_WORKERS;
+	}
+
+	public static ExecutorService executor;
+
+	public void shutdownExe() {
+		executor.shutdownNow();
+	}
+	
+	public static void copy() {
 		
 		try {	
 			FileInfo info = FileInfoReceiver.getLocalhostServerFileInfo();
@@ -32,14 +44,17 @@ public class Client {
 			
 			File numberOfThreads = new File("numberOfThreads.txt");
 			
-			long lenght = info.size/(NUMBER_OF_WORKERS);
+			long lenght;
 				
 			if(numberOfThreads.exists()) {
 				try(Scanner sc = new Scanner(numberOfThreads)){
 					int threads = sc.nextInt();
+					
+					lenght = info.size/(threads);
+					
 					File[] filesProgress = new File[threads];
 					
-					ExecutorService executor = Executors.newFixedThreadPool(threads);
+					executor = Executors.newFixedThreadPool(threads);
 					
 					for(int i = 0; i < threads;i++) {
 						filesProgress[i] = new File("progress" + i +".txt");
@@ -96,7 +111,7 @@ public class Client {
 					});
 					
 					executor.shutdown();
-					executor.awaitTermination(30, TimeUnit.MINUTES);	
+					
 					
 					if(executor.isTerminated()) {
 						try {
@@ -111,7 +126,9 @@ public class Client {
 				
 				
 			}else {
-				ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS);
+				executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS);
+				
+				lenght = info.size/(NUMBER_OF_WORKERS);
 				
 				try {
 					numberOfThreads.createNewFile();
@@ -151,7 +168,8 @@ public class Client {
 				});
 				
 				executor.shutdown();
-				executor.awaitTermination(30, TimeUnit.MINUTES);
+				
+				
 				
 				if(executor.isTerminated()) {
 					
@@ -212,5 +230,19 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	protected Task<Void> createTask() {
+			Task<Void> task = new Task<Void>() {
+
+				@Override
+				protected Void call() {
+					copy();
+					return null;
+				}
+			};
+			return task;
+		}
+	
 	
 }
